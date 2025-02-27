@@ -7,10 +7,10 @@ from datetime import datetime
 def save_to_excel(data):
     # Definindo o caminho do arquivo Excel
     file_path = r'C:\Projects\formulario_visitas\visits_latam.xlsx'
-
+    
     # Verifica se o arquivo Excel já existe
     try:
-        df = pd.read_excel(file_path, engine='openpyxl')
+        df = pd.read_excel(file_path, sheet_name='Visits', engine='openpyxl')
     except FileNotFoundError:
         # Se não existir, cria um novo DataFrame com os cabeçalhos
         df = pd.DataFrame(columns=[
@@ -18,11 +18,15 @@ def save_to_excel(data):
             'Contact_CC', 'Customer_Mining', 'Site', 'Activity', 
             'Summary', 'City', 'CC', 'Status_Visit', 'BL'])
 
-    # Adiciona os dados à tabela
-    df = df.append(data, ignore_index=True)
+    # Converte o dicionário `data` para um DataFrame
+    new_data = pd.DataFrame([data])
 
-    # Salva no arquivo Excel
-    df.to_excel(file_path, index=False, engine='openpyxl')
+    # Concatena o DataFrame atual com o novo DataFrame
+    df = pd.concat([df, new_data], ignore_index=True)
+
+
+    # Salva no arquivo Excel, na aba "Visits"
+    df.to_excel(file_path, sheet_name='Visits', index=False, engine='openpyxl')
 
 # Função chamada ao clicar no botão de "Salvar"
 def submit_data():
@@ -61,7 +65,7 @@ def submit_data():
     # Exibe uma mensagem de sucesso
     messagebox.showinfo("Sucesso", "Dados salvos com sucesso!")
 
-    # Limpa os campos do formulário
+    # Limpa os campos do formulário após salvar
     entry_responsible_rgd.delete(0, tk.END)
     entry_contact_cc.delete(0, tk.END)
     entry_customer_mining.delete(0, tk.END)
@@ -92,6 +96,7 @@ tk.Label(window, text="CC").grid(row=10, column=0)
 tk.Label(window, text="Status Visit").grid(row=11, column=0)
 tk.Label(window, text="BL").grid(row=12, column=0)
 
+# Entradas do formulário
 entry_responsible_rgd = tk.Entry(window)
 entry_contact_cc = tk.Entry(window)
 entry_customer_mining = tk.Entry(window)
