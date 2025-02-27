@@ -5,9 +5,12 @@ from datetime import datetime
 
 # Função para salvar os dados no Excel
 def save_to_excel(data):
+    # Definindo o caminho do arquivo Excel
+    file_path = r'C:\Projects\formulario_visitas\visits_latam.xlsx'
+
     # Verifica se o arquivo Excel já existe
     try:
-        df = pd.read_excel('dados.xlsx', engine='openpyxl')
+        df = pd.read_excel(file_path, engine='openpyxl')
     except FileNotFoundError:
         # Se não existir, cria um novo DataFrame com os cabeçalhos
         df = pd.DataFrame(columns=[
@@ -19,16 +22,21 @@ def save_to_excel(data):
     df = df.append(data, ignore_index=True)
 
     # Salva no arquivo Excel
-    df.to_excel('dados.xlsx', index=False, engine='openpyxl')
+    df.to_excel(file_path, index=False, engine='openpyxl')
 
 # Função chamada ao clicar no botão de "Salvar"
 def submit_data():
-    # Coleta os dados do formulário
+    # Obtendo a data e o dia da semana atuais
+    current_date = datetime.now()
+    date_visit = current_date.strftime('%d/%m/%Y')  # Formato DD/MM/YYYY
+    day_visit = current_date.strftime('%A')  # Nome do dia (ex: Monday, Tuesday, etc.)
+
+    # Preenchendo os campos com valores fixos e os obtidos da data
     data = {
-        'Date_Visit': entry_date_visit.get(),
-        'Day_Visit': entry_day_visit.get(),
+        'Date_Visit': date_visit,
+        'Day_Visit': day_visit,
         'Responsible_RGD': entry_responsible_rgd.get(),
-        'Code_CC': entry_code_cc.get(),
+        'Code_CC': 'ZXBRC',  # Valor fixo
         'Contact_CC': entry_contact_cc.get(),
         'Customer_Mining': entry_customer_mining.get(),
         'Site': entry_site.get(),
@@ -36,10 +44,17 @@ def submit_data():
         'Summary': entry_summary.get(),
         'City': entry_city.get(),
         'CC': entry_cc.get(),
-        'Status_Visit': entry_status_visit.get(),
+        'Status_Visit': entry_status_visit.get(),  # Este campo será preenchido pelo usuário
         'BL': entry_bl.get()
     }
-    
+
+    # Validação para garantir que Status_Visit tenha valores válidos
+    status_valid_values = ['Done', 'Schedule', 'Canceled']
+    status_visit = data['Status_Visit']
+    if status_visit not in status_valid_values:
+        messagebox.showerror("Erro", f"O status '{status_visit}' não é válido. Deve ser um dos seguintes: {', '.join(status_valid_values)}.")
+        return  # Não prossegue com a salvamento dos dados se o status for inválido
+
     # Converte os dados para o formato de DataFrame e salva no Excel
     save_to_excel(data)
 
@@ -47,10 +62,7 @@ def submit_data():
     messagebox.showinfo("Sucesso", "Dados salvos com sucesso!")
 
     # Limpa os campos do formulário
-    entry_date_visit.delete(0, tk.END)
-    entry_day_visit.delete(0, tk.END)
     entry_responsible_rgd.delete(0, tk.END)
-    entry_code_cc.delete(0, tk.END)
     entry_contact_cc.delete(0, tk.END)
     entry_customer_mining.delete(0, tk.END)
     entry_site.delete(0, tk.END)
@@ -80,10 +92,7 @@ tk.Label(window, text="CC").grid(row=10, column=0)
 tk.Label(window, text="Status Visit").grid(row=11, column=0)
 tk.Label(window, text="BL").grid(row=12, column=0)
 
-entry_date_visit = tk.Entry(window)
-entry_day_visit = tk.Entry(window)
 entry_responsible_rgd = tk.Entry(window)
-entry_code_cc = tk.Entry(window)
 entry_contact_cc = tk.Entry(window)
 entry_customer_mining = tk.Entry(window)
 entry_site = tk.Entry(window)
@@ -95,10 +104,7 @@ entry_status_visit = tk.Entry(window)
 entry_bl = tk.Entry(window)
 
 # Posicionamento dos campos de entrada
-entry_date_visit.grid(row=0, column=1)
-entry_day_visit.grid(row=1, column=1)
 entry_responsible_rgd.grid(row=2, column=1)
-entry_code_cc.grid(row=3, column=1)
 entry_contact_cc.grid(row=4, column=1)
 entry_customer_mining.grid(row=5, column=1)
 entry_site.grid(row=6, column=1)
